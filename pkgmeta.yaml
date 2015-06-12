@@ -1,0 +1,9 @@
+package-as: PetOMatic
+ignore:
+	- README.md
+	- CHANGELOG.md
+	- LICENSE
+
+license-output: LICENSE
+
+manual-changelog: CHANGELOG.md
