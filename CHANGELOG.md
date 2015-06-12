@@ -1,3 +1,4 @@
+
 ## Changelog
 
 ### Adds
@@ -14,10 +15,10 @@
 * The pet button may be hidden from the UI either. This may be toggled through the Options window or with the command `/pom hide`
 
 ### Updates
-* *None*
+* Changed background of options window
 
 ### Fixes
-* *None*
+* Fixed issue with autosummoning feature
 
 ### Known Issues
 * *No Known Issues*
