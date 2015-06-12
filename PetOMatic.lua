@@ -349,7 +349,7 @@ function PetOMatic:OnPetBtn( wndHandler, wndControl )
 end
 
 ---------------------------------------------------------------------------------------------------
--- PetOMatic OnSelectedPetBtn Function
+-- PetOMatic OnPetSummonBtn Function
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:OnPetSummonBtn( wndHandler, wndControl )
 	if GameLib.GetPlayerUnit():IsCasting() then
@@ -430,7 +430,7 @@ function PetOMatic:AutoSummon()
 		end
 	end
 
-	self:OnSelectedPetBtn(nil,nil)
+	self:OnPetSummonBtn(nil,nil)
 	self.AutoSummonAttempts = self.AutoSummonAttempts + 1
 	
 	local arPets = GameLib.GetPlayerPets()
@@ -531,8 +531,11 @@ end
 function PetOMatic:ToggleAutoSummon(bAutoSummon)	
 	if bAutoSummon then
 		self:PrintDebug("Enabling automsummon after death")
+		
+		self.wndPetOptions:FindChild("PetOptionsSuspendInRaidBtn"):Enable(true)
 	else
 		self:PrintDebug("Disabling automsummon after death")
+		self.wndPetOptions:FindChild("PetOptionsSuspendInRaidBtn"):Enable(false)
 	end
 	
 	self.wndPetOptions:FindChild("PetOptionsAutoSummonBtn"):SetCheck(bAutoSummon)
