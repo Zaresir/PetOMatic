@@ -1,10 +1,7 @@
-# PetOMatic
 
-**Description**
+## Changelog
 
-PetOMatic is Wildstar addon to make the summoning of vanity pets easier. It is designed to work like the mount button. It provides a button on the UI that allows you to select a pet from your unlocked vanity pets. Once selected, you can summon and dismiss the pet by clicking the button. 
-
-**Current Features**
+### Adds
 * Autosummoning of pet after resurrecting from death. This may be toggled through the Options window or with the command `/pom auto`
   * Autosummoning is suspend while in a Raid
 * Ability to move the pet button
@@ -16,3 +13,12 @@ PetOMatic is Wildstar addon to make the summoning of vanity pets easier. It is d
 * List of pets automatically updates when new pet is unlocked
 * List of pets opens above button by default, but will move list below the button if the position of the button would cause the list to open past the top of the screen
 * The pet button may be hidden from the UI either. This may be toggled through the Options window or with the command `/pom hide`
+
+### Updates
+* Changed background of options window
+
+### Fixes
+* Fixed issue with autosummoning feature
+
+### Known Issues
+* *No Known Issues*
