@@ -15,7 +15,6 @@ local kstrContainerEventName = "PetOMatic"
 -----------------------------------------------------------------------------------------------
 -- Constants
 -----------------------------------------------------------------------------------------------
--- e.g. local kiExampleVariableMax = 999
 kVersion = "1.5.0"
 kResetOptions = false
 
@@ -684,12 +683,18 @@ function PetOMatic:LoadOptions()
 	self:PrintDebug("- HideAddon = " .. tostring(self.ConfigData.saved.HideAddon ~= nil and self.ConfigData.saved.HideAddon or self.ConfigData.default.HideAddon))
 	self:PrintDebug("- MaxListSize = " .. tostring(self.ConfigData.saved.MaxListSize ~= nil and self.ConfigData.saved.MaxListSize or self.ConfigData.default.MaxListSize))
 	
+	local options = self.wndPetOptions:FindChild("MaxPetListSize")
+	local tAutoSummon = (self.ConfigData.saved.AutoSummon ~= nil and self.ConfigData.saved.AutoSummon or self.ConfigData.default.AutoSummon)
+	local tSuspendInRaid = (self.ConfigData.saved.SuspendInRaid ~= nil and self.ConfigData.saved.SuspendInRaid or self.ConfigData.default.SuspendInRaid)
+	local tHide = (self.ConfigData.saved.HideAddon ~= nil and self.ConfigData.saved.HideAddon or self.ConfigData.default.HideAddon)
+	local vMaxListSize = (self.ConfigData.saved.MaxListSize ~= nil and self.ConfigData.saved.MaxListSize or self.ConfigData.default.MaxListSize)
+	
 	self.wndPetOptions:FindChild("PetOptionsMoveAddonBtn"):SetCheck(False)
 	self:ToggleMoveable(false, true)
-	self:ToggleAutoSummon(self.ConfigData.saved.AutoSummon ~= nil and self.ConfigData.saved.AutoSummon or self.ConfigData.default.AutoSummon, true)
-	self:ToggleSuspendInRaid(self.ConfigData.saved.SuspendInRaid ~= nil and self.ConfigData.saved.SuspendInRaid or self.ConfigData.default.SuspendInRaid, true)
-	self:ToggleHide(self.ConfigData.saved.HideAddon ~= nil and self.ConfigData.saved.HideAddon or self.ConfigData.default.HideAddon, true)
-	self:UpdateSizeSlider(self.ConfigData.saved.MaxListSize ~= nil and self.ConfigData.saved.MaxListSize or self.ConfigData.default.MaxListSize, true)
+	self:ToggleAutoSummon(tAutoSummon, true)
+	self:ToggleSuspendInRaid(tSuspendInRaid, true)
+	self:ToggleHide(tHide, true)
+	self:InitSlider(options:FindChild("MaxPetListSize"), kListSizeMin, kListSizeMax, 1, vMaxListSize , 0, function (value) self.ConfigData.saved.MaxListSize = value end)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -978,17 +983,42 @@ function PetOMatic:ToggleHide(bHideAddon, SuppressOutput)
 end
 
 ---------------------------------------------------------------------------------------------------
+-- PetOMatic InitSlider Function
+---------------------------------------------------------------------------------------------------
+function PetOMatic:InitSlider(slider, min, max, tick, value, roundDigits, callback)
+	slider = self.wndPetOptions:FindChild("MaxPetListSize")
+	
+	slider:SetData({
+		callback = callback,
+		digits = roundDigits
+	})
+	
+	slider:FindChild("Slider"):SetMinMax(min, max, tick)
+	slider:FindChild("Slider"):SetValue(value)
+	slider:FindChild("Input"):SetText(tostring(value))
+	slider:FindChild("Min"):SetText(tostring(min))
+	slider:FindChild("Max"):SetText(tostring(max))
+end
+
+---------------------------------------------------------------------------------------------------
 -- PetOMatic OnPetOptionsMaxListSizeChanged Function
 ---------------------------------------------------------------------------------------------------
-function PetOMatic:OnPetOptionsMaxListSizeChanged(wmdHandler, wndControl, fNewValue, fOldValue)
+function PetOMatic:OnPetOptionsMaxListSizeChanged(wndHandler, wndControl, value)
 	if wndControl then
-		self.ConfigData.saved.MaxListSize = fNewValue
+		self:PlayOptionsSound(wndControl, "Push")
+		
+		self.ConfigData.saved.MaxListSize = value
+		
+		value = self:UpdateSlider(wndHandler, value)
+		wndHandler:GetParent():GetData().callback(value)
 	else
+		slider = self.wndPetOptions:FindChild("MaxPetListSize")
+		
 		self:PrintMsg(string.format("New maximum list size set to: %d", self.ConfigData.saved.MaxListSize), true)
-		self.wndPetOptions:FindChild("MaxPetListSizeSlider"):SetValue(self.ConfigData.saved.MaxListSize)
+		
+		slider:FindChild("Slider"):SetValue(self.ConfigData.saved.MaxListSize)
+		slider:FindChild("Input"):SetText(tostring(self.ConfigData.saved.MaxListSize))
 	end
-	
-	self.wndPetOptions:FindChild("MaxPetListSizeText"):SetText(self.ConfigData.saved.MaxListSize)
 	
 	self:PrintDebug("New Max List Size: " .. tostring(self.ConfigData.saved.MaxListSize))
 	
@@ -1000,13 +1030,19 @@ end
 ---------------------------------------------------------------------------------------------------
 -- PetOMatic UpdateSizeSlider Function
 ---------------------------------------------------------------------------------------------------
-function PetOMatic:UpdateSizeSlider(bMaxListSize)
-	self:PrintDebug("Setting Max List Size option to: " .. tostring(bMaxListSize))	
-	
-	self.wndPetOptions:FindChild("MaxPetListSizeText"):SetText(bMaxListSize)
-	self.wndPetOptions:FindChild("MaxPetListSizeSlider"):Enable(false)
-	self.wndPetOptions:FindChild("MaxPetListSizeSlider"):SetValue(bMaxListSize)
-	self.wndPetOptions:FindChild("MaxPetListSizeSlider"):Enable(true)
+function PetOMatic:UpdateSlider(wndHandler, value)
+	local parent = wndHandler:GetParent()
+	if wndHandler:GetName() == "Input" then
+		value = tonumber(value)
+		if not value then
+			return nil
+		end
+	else
+		value = round(value, wndHandler:GetParent():GetData().digits)
+		parent:FindChild("Input"):SetText(tostring(value))
+	end
+	parent:FindChild("Slider"):SetValue(value)
+	return value
 end
 
 ---------------------------------------------------------------------------------------------------
