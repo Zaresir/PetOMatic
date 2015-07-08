@@ -9,7 +9,7 @@
 
 ### Updates
 * Options window style changed to conform to native UI window style.
-* ooltip style changed to match native action bar tooltips.
+* Tooltip style changed to match native action bar tooltips.
 
 ### Fixes
 * Button will no longer become enabled if Max List Size slider is changed in Options window when no character has no unlocked pets.
