@@ -15,7 +15,7 @@ local kstrContainerEventName = "PetOMatic"
 -----------------------------------------------------------------------------------------------
 -- Constants
 -----------------------------------------------------------------------------------------------
-kVersion = "1.5.0-beta.3"
+kVersion = "1.5.0-beta.4"
 kResetOptions = false
 
 kListSizeMin = 1
@@ -74,8 +74,7 @@ function PetOMatic:new(o)
 	self.ConfigData.saved = setmetatable({}, {__index = config.user})
 	
 	self.ResetSavedData = false
-	
-	self.PetListLoaded = false
+
 	self.nSelectedPet = nil
 	self.nSelectedPetCastTime = 0.0
 	
@@ -217,20 +216,6 @@ function PetOMatic:PrintMsg(msg, header)
 end
 
 ---------------------------------------------------------------------------------------------------
--- PetOMatic RedrawSelectedPet Function
----------------------------------------------------------------------------------------------------
-function PetOMatic:RedrawSelectedPet(tPetInfo)
-	local wndSummonBtn = self.wndPetFlyout:FindChild("PetSummonBtnIcon")
-	
-	self:PrintDebug("Selected Pet = " .. tPetInfo.strName)
-	self:PrintDebug("Cast Time = " .. tostring(self.nSelectedPetCastTime))
-	
-	wndSummonBtn:SetSprite(tPetInfo.splObject and tPetInfo.splObject:GetIcon() or "Icon_ItemArmorWaist_Unidentified_Buckle_0001")	
-	
-	self:GenerateTooltip(wndSummonBtn, tPetInfo)
-end
-
----------------------------------------------------------------------------------------------------
 -- PetOMatic UpdatePetList Function
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:UpdatePetList()
@@ -308,11 +293,6 @@ function PetOMatic:UpdatePetList()
 		
 		self:ToggleEnabled(false)
 	end
-	
-	if not self.PetListLoaded then
-		self.PetListLoaded = true
-		self:PrintMsg(string.format("%d pets unlocked", self.NumberOfPets), true)
-	end
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -374,6 +354,20 @@ function PetOMatic:ResizeList()
 	self.wndPetFlyoutList:SetVScrollPos(0)
 	
 	self:ToggleEnabled(true)
+end
+
+---------------------------------------------------------------------------------------------------
+-- PetOMatic RedrawSelectedPet Function
+---------------------------------------------------------------------------------------------------
+function PetOMatic:RedrawSelectedPet(tPetInfo)
+	local wndSummonBtn = self.wndPetFlyout:FindChild("PetSummonBtnIcon")
+	
+	self:PrintDebug("Selected Pet = " .. tPetInfo.strName)
+	self:PrintDebug("Cast Time = " .. tostring(self.nSelectedPetCastTime))
+	
+	wndSummonBtn:SetSprite(tPetInfo.splObject and tPetInfo.splObject:GetIcon() or "Icon_ItemArmorWaist_Unidentified_Buckle_0001")	
+	
+	self:GenerateTooltip(wndSummonBtn, tPetInfo)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -719,12 +713,16 @@ end
 -- PetOMatic OnPetOptionsAutoSummonBtn Function
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:OnPetOptionsAutoSummonBtn(wndHandler, wndControl)
+	local suppressOutput = false
+	
 	if wndControl then
 		self:PlayOptionsSound(wndControl, "Checkbox")
+		
+		suppressOutput = true
 	end
 
 	self.ConfigData.saved.AutoSummon = not self.ConfigData.saved.AutoSummon
-	self:ToggleAutoSummon(self.ConfigData.saved.AutoSummon)
+	self:ToggleAutoSummon(self.ConfigData.saved.AutoSummon, suppressOutput)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -755,12 +753,16 @@ end
 -- PetOMatic OnPetOptionsNoSuspendInRaidBtn Function
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:OnPetOptionsSuspendInRaidBtn(wndHandler, wndControl)
+	local suppressOutput = false
+
 	if wndControl then
 		self:PlayOptionsSound(wndControl, "Checkbox")
+		
+		suppressOutput = true
 	end
 	
 	self.ConfigData.saved.SuspendInRaid = (not self.ConfigData.saved.SuspendInRaid)
-	self:ToggleSuspendInRaid(self.ConfigData.saved.SuspendInRaid)
+	self:ToggleSuspendInRaid(self.ConfigData.saved.SuspendInRaid, suppressOutput)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -788,18 +790,24 @@ end
 -- PetOMatic OnPetOptionsMoveAddonBtn Function
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:OnPetOptionsMoveAddonBtn(wndHandler, wndControl)
+	local suppressOutput = false
+
 	if wndControl then
 		self:PlayOptionsSound(wndControl, "Checkbox")
-	
+		
+		suppressOutput = true
+		
+		local bChecked = false
+
 		if wndControl:IsChecked() then
 			self:PrintDebug("Move button checked")
 		
-			self:ToggleMoveable(true)
+			bChecked = true
 		else
-			self:PrintDebug("Move button unchecked")
-		
-			self:ToggleMoveable(false)
+			self:PrintDebug("Move button unchecked")	
 		end
+		
+		self:ToggleMoveable(bChecked, suppressOutput)
 	else
 		self.wndPetOptions:FindChild("PetOptionsMoveAddonBtn"):SetCheck(not self.wndPetOptions:FindChild("PetOptionsMoveAddonBtn"):IsChecked())
 		self:ToggleMoveable(self.wndPetFlyout:FindChild("PetFlyoutBtn"):IsEnabled())
@@ -898,13 +906,17 @@ end
 -- PetOMatic OnPetOptionsRestoreDefaultPositionBtn Function
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:OnPetOptionsRestoreDefaultPositionBtn(wndHandler, wndControl)
+	local suppressOutput = (self.ResetSavedData or false)
+
 	if wndControl then
 		self:PlayOptionsSound(wndControl, "Push")
+		
+		suppressOutput = true
 	end
 	
 	self:PrintDebug("Restoring default button position")
 	
-	if not self.ResetSavedData then
+	if not suppressOutput then
 		self:PrintMsg("Restoring button to default position", true)
 	end
 	
@@ -943,12 +955,16 @@ end
 -- PetOMatic OnPetOptionsHideAddonBtn Function
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:OnPetOptionsHideAddonBtn(wndHandler, wndControl)
+	local suppressOutput = false
+	
 	if wndControl then
 		self:PlayOptionsSound(wndControl, "Checkbox")
+		
+		suppressOutput = true
 	end
 	
 	self.ConfigData.saved.HideAddon = not self.ConfigData.saved.HideAddon
-	self:ToggleHide(self.ConfigData.saved.HideAddon)
+	self:ToggleHide(self.ConfigData.saved.HideAddon, suppressOutput)
 end
 
 ---------------------------------------------------------------------------------------------------
