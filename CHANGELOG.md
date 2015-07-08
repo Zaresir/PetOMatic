@@ -13,6 +13,7 @@
 
 ### Fixes
 * Button will no longer become enabled if Max List Size slider is changed in Options window when no character has no unlocked pets.
+* Complete rework of slider-handling logic
 * Code to identified button has been moved and store new position has been corrected.
 
 ### Known Issues
