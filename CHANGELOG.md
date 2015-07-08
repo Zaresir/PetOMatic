@@ -1,5 +1,5 @@
 
-## Changelog
+## Changelog 1.0.0-release
 
 ### Adds
 * Autosummoning of pet after resurrecting from death. This may be toggled through the Options window or with the command `/pom auto`
