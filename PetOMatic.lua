@@ -61,7 +61,9 @@ SlashCommands_POM = {
 	restore = {disp = nil, desc = "Restore default button position", hndlr = "E_PetOMaticRestor", func = "OnPetOptionsRestoreDefaultPositionBtn"},
 	raid = {disp = nil, desc = "Enable/disable autosummoning in Raids", hndlr = "E_PetOMAticRaid", func = "OnPetOptionsSuspendInRaidBtn"},
 	max = {disp = string.format("max [%d-%d]", kListSizeMin_POM, kListSizeMax_POM), desc = "Set the pet list size to specified value.", hndlr = "E_PetOMaticMax", func = "OnPetOptionsMaxListSizeChanged"},
-	reset = {disp = nil, desc = "Clears all saved addon data and settings", hndlr = "E_PetOMaticReset", func = "ClearSavedData"}
+	reset = {disp = nil, desc = "Clears all saved addon data and settings", hndlr = "E_PetOMaticReset", func = "ClearSavedData"},
+	center = {disp = nil, desc = "Move button to center of screen", hndlr = "E_PetOMaticCenter", func = "OnPetOptionsCenterBtn"},
+	random = {disp = nil, desc = "Select and summon random pet", hndlr = "E_PetOMaticRandom", func = "OnPetRandomBtn"}
 }
 
 -----------------------------------------------------------------------------------------------
