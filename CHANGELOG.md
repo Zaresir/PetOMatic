@@ -6,6 +6,8 @@
   * If mounted, in a vehicle, or in a taxi, selected pet will be summoned once no longer mounted.
 * Added new slash commands. All options have corresponding slash commands.
   * Type /pom for a list of slash commands.
+ * Random pet capability - Click the die on the button to summon a random pet. Can also be triggered with the command /pom random
+ * Option to center button on screen. This should help users of ForgeUI find and reposition the button easier. The command /pom center will also center the button
 
 ### Updates
 * Options window style changed to conform to native UI window style.
