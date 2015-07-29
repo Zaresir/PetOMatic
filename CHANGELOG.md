@@ -1,5 +1,5 @@
 
-## Changelog 1.5.0-beta.4
+## Changelog 1.5.0-beta.5
 
 ### Adds
 * When a pet is selected from the pet list, it will automatically be summoned if another pet is currently summoned. 
