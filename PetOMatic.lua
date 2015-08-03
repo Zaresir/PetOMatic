@@ -16,7 +16,7 @@ local kstrContainerEventName_POM = "PetOMatic"
 -- Constants
 -----------------------------------------------------------------------------------------------
 kCreator_POM = "Zaresir Tinktaker"
-kVersion_POM = "1.5.0-beta.5"
+kVersion_POM = "1.5.0-beta.6"
 kResetOptions_POM = false
 
 kListSizeMin_POM = 1
@@ -55,7 +55,7 @@ config_POM.user.Version = nil
 SlashCommands_POM = {
 	debug = {disp = nil, desc = "Toggle DEBUG mode", hndlr = "E_PetOMaticDebug", func = "ToggleDebug"},
 	config = {disp = nil, desc = "Open PetOMatic Options window", hndlr = "E_PetOMaticOptions", func = "ShowPetOptions"},
-	auto = {disp = nil, desc = "Toggle autosummon feature", hndlr = "E_PetOMaticAutoSummon", func = "OnPetOptionsAutoSummonBtn"},
+	auto = {disp = nil, desc = "Toggle autosummon after death", hndlr = "E_PetOMaticAutoSummon", func = "OnPetOptionsAutoSummonBtn"},
 	hide = {disp = nil, desc = "Hide/show button", hndlr = "E_PetOMaticHide", func = "OnPetOptionsHideAddonBtn"},
 	move = {disp = nil, desc = "Enable/disable button movement", hndlr = "E_PetOMaticMove", func = "OnPetOptionsMoveAddonBtn"},
 	restore = {disp = nil, desc = "Restore default button position", hndlr = "E_PetOMaticRestor", func = "OnPetOptionsRestoreDefaultPositionBtn"},
@@ -619,16 +619,20 @@ end
 -- PetOMatic IsSummoned Function
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:IsSummoned()
-	local arPets = GameLib.GetPlayerPets()
+	local SelectedPet = (self.ConfigData.saved.SelectedPet ~= nil and self.ConfigData.saved.SelectedPet or self.ConfigData.saved.SelectedPet)
 	
-	if arPets then
-		for idx, unitPet in pairs(arPets) do
-			self:PrintDebug(string.format("Summoned = %s; Selected = %s", tostring(unitPet:GetName()), tostring(self.ConfigData.saved.SelectedPet.strName)))
-						
-			if unitPet:GetName() == self.ConfigData.saved.SelectedPet.strName then
-				self:PrintDebug("IsSummoned = True")
-				
-				return true
+	if SelectedPet.strName ~= nil then
+		local arPets = GameLib.GetPlayerPets()
+		
+		if arPets then
+			for idx, unitPet in pairs(arPets) do
+				self:PrintDebug(string.format("Summoned = %s; Selected = %s", tostring(unitPet:GetName()), tostring(SelectedPet.strName)))
+							
+				if unitPet:GetName() == SelectedPet.strName then
+					self:PrintDebug("IsSummoned = True")
+					
+					return true
+				end
 			end
 		end
 	end
@@ -695,10 +699,10 @@ function PetOMatic:LoadWindowPosition()
 	if self.ConfigData.saved.CustomPosition then
 		self:PrintDebug("- Custom Position")
 		
-		btnAnchor = self.ConfigData.saved.btnAnchor
-		btnOffset = self.ConfigData.saved.btnOffset
-		lstAnchor = self.ConfigData.saved.lstAnchor
-		lstOffset = self.ConfigData.saved.lstOffset
+		btnAnchor = (self.ConfigData.saved.btnAnchor ~= nil and self.ConfigData.saved.btnAnchor or self.ConfigData.default.btnAnchor)
+		btnOffset = (self.ConfigData.saved.btnOffset ~= nil and self.ConfigData.saved.btnOffset or self.ConfigData.default.btnOffset)
+		lstAnchor = (self.ConfigData.saved.lstAnchor ~= nil and self.ConfigData.saved.lstAnchor or self.ConfigData.default.lstAnchor)
+		lstOffset = (self.ConfigData.saved.lstOffset ~= nil and self.ConfigData.saved.lstOffset or self.ConfigData.default.lstOffset)
 	else
 		self:PrintDebug("- Default Position")
 	
@@ -944,7 +948,8 @@ function PetOMatic:ToggleMoveable(Moveable, SuppressOutput)
 			self:PrintDebug("Button moved")
 			
 			-- Save new position
-			self.ConfigData.saved.btnOffset = {self.wndPetFlyout:GetAnchorPoints()}
+			self.ConfigData.saved.btnOffset = PetBtnOffsets
+			self.ConfigData.saved.btnAnchor = PetBtnAnchors
 			self.ConfigData.saved.CustomPosition = true
 
 			-- Calculate FlyoutFrame Offsets
