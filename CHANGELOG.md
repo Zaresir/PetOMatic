@@ -1,6 +1,8 @@
 
 ## Changelog 1.5.0-beta.5
 
+Beta Release
+
 ### Adds
 * When a pet is selected from the pet list, it will automatically be summoned if another pet is currently summoned. 
   * If mounted, in a vehicle, or in a taxi, selected pet will be summoned once no longer mounted.
