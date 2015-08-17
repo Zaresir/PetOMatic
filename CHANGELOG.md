@@ -4,6 +4,7 @@ Beta Release
 
 ### Adds
 * Added PTR Support (API 11)
+  * LIBRARY SUPPORT ONLY; Will still need to change load rules in PTR to allow out of data addons
 * When a pet is selected from the pet list, it will automatically be summoned if another pet is currently summoned. 
   * If mounted, in a vehicle, or in a taxi, selected pet will be summoned once no longer mounted.
 * Added new slash commands. All options have corresponding slash commands.
