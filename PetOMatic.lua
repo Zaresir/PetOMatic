@@ -19,6 +19,8 @@ kCreator_POM = "Zaresir Tinktaker"
 kVersion_POM = "1.5.0-beta.6"
 kResetOptions_POM = false
 
+kPTRBridge_POM = nil
+
 kListSizeMin_POM = 1
 kListSizeMax_POM = 7
 
@@ -114,6 +116,12 @@ function PetOMatic:OnLoad()
 	self.xmlDoc = XmlDoc.CreateFromFile("PetOMatic.xml")
 	self.xmlDoc:RegisterCallback("OnDocLoaded", self)
 	
+	if Apollo.GetAPIVersion == 10 then
+		kPTRBridge_POM = GameLib
+	else
+		kPTRBridge_POM = CollectiblesLib
+	end
+		
 	self:RegisterObjects()
 end
 
@@ -234,7 +242,8 @@ function PetOMatic:UpdatePetList()
 	
 	self.KnownPets = {}
 	
-	local arPetList = GameLib.GetVanityPetList()
+	local arPetList = kPTRBridge_POM.GetVanityPetList()
+	
 	local firstKnownPet = nil
 	local kPetIdx = 1
 	
@@ -589,7 +598,7 @@ end
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:IsActiveVanityPet()
 	local arPets = GameLib.GetPlayerPets()
-	local arPetList = GameLib.GetVanityPetList()
+	local arPetList = kPTRBridge_POM.GetVanityPetList()
 	
 	self:PrintDebug("Player pets: " .. tostring(#arPets))
 	self:PrintDebug("Pet List: " .. tostring(#arPetList))
