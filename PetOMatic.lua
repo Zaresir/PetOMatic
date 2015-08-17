@@ -19,7 +19,7 @@ kCreator_POM = "Zaresir Tinktaker"
 kVersion_POM = "1.5.0-beta.6"
 kResetOptions_POM = false
 
-kPTRBridge_POM = nil
+kAPIBridge_POM = nil
 
 kListSizeMin_POM = 1
 kListSizeMax_POM = 7
@@ -116,10 +116,10 @@ function PetOMatic:OnLoad()
 	self.xmlDoc = XmlDoc.CreateFromFile("PetOMatic.xml")
 	self.xmlDoc:RegisterCallback("OnDocLoaded", self)
 	
-	if Apollo.GetAPIVersion == 10 then
-		kPTRBridge_POM = GameLib
+	if Apollo.GetAPIVersion() == 10 then
+		kAPIBridge_POM = GameLib
 	else
-		kPTRBridge_POM = CollectiblesLib
+		kAPIBridge_POM = CollectiblesLib
 	end
 		
 	self:RegisterObjects()
@@ -137,7 +137,8 @@ function PetOMatic:OnDocLoaded()
 	
 	self.wndPetFlyout:FindChild("PetFlyoutBtn"):SetCheck(false)
 	self.wndPetFlyout:FindChild("PetFlyoutBtn"):AttachWindow(self.wndPetFlyoutFrame)
-	
+		
+	self:PrintDebug(string.format("API: %d", Apollo.GetAPIVersion()))
 	self:PrintDebug("Display Size = " .. tostring(self.ConfigData.default.DisplayHeight))
 	
 	self:LoadWindowPosition()
@@ -242,7 +243,7 @@ function PetOMatic:UpdatePetList()
 	
 	self.KnownPets = {}
 	
-	local arPetList = kPTRBridge_POM.GetVanityPetList()
+	local arPetList = kAPIBridge_POM.GetVanityPetList()
 	
 	local firstKnownPet = nil
 	local kPetIdx = 1
@@ -598,7 +599,7 @@ end
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:IsActiveVanityPet()
 	local arPets = GameLib.GetPlayerPets()
-	local arPetList = kPTRBridge_POM.GetVanityPetList()
+	local arPetList = kAPIBridge_POM.GetVanityPetList()
 	
 	self:PrintDebug("Player pets: " .. tostring(#arPets))
 	self:PrintDebug("Pet List: " .. tostring(#arPetList))
