@@ -1,4 +1,4 @@
-## Changelog 1.5.0-beta.6
+## Changelog 1.5.0-beta.7
 
 Beta Release
 
