@@ -1,24 +1,25 @@
+## Changelog 1.5.0
 
-## Changelog
+Stable Release
 
 ### Adds
-* Autosummoning of pet after resurrecting from death. This may be toggled through the Options window or with the command `/pom auto`
-  * Autosummoning is suspend while in a Raid
-* Ability to move the pet button
-  * Option to reset button to default position
-* Customize the number of pets displayed in the list at once
-* Saves last selected pet on logout/reload ui
-* Configurable through an options window
-  * Options window can be opened through the Interfaces menu or with the command `/pom config`
-* List of pets automatically updates when new pet is unlocked
-* List of pets opens above button by default, but will move list below the button if the position of the button would cause the list to open past the top of the screen
-* The pet button may be hidden from the UI either. This may be toggled through the Options window or with the command `/pom hide`
+* Added PTR Support (API 11)
+  * LIBRARY SUPPORT ONLY; Will still need to change load rules in PTR to allow out of date addons
+* When a pet is selected from the pet list, it will automatically be summoned if another pet is currently summoned. 
+  * If mounted, in a vehicle, or in a taxi, selected pet will be summoned once no longer mounted.
+* Added new slash commands. All options have corresponding slash commands.
+  * Type /pom for a list of slash commands.
+* Random pet capability - Click the die on the button to summon a random pet. Can also be triggered with the command /pom random
+* Option to center button on screen. This should help users of ForgeUI find and reposition the button easier. The command /pom center will also center the button
 
 ### Updates
-* Changed background of options window
+* Options window style changed to conform to native UI window style.
+* Tooltip style changed to match native action bar tooltips.
 
 ### Fixes
-* Fixed issue with autosummoning feature
+* Button will no longer become enabled if Max List Size slider is changed in Options window when no character has no unlocked pets.
+* Complete rework of slider-handling logic
+* Code to identified button has been moved and store new position has been corrected.
 
 ### Known Issues
 * *No Known Issues*
