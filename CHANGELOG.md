@@ -12,4 +12,4 @@ _None_
 * Fixed minor bug in logic to check if a pet is summoned
 
 ### Known Issues
-* *_No Known Issues_*
+_No Known Issues_
