@@ -16,7 +16,7 @@ local kstrContainerEventName_POM = "PetOMatic"
 -- Constants
 -----------------------------------------------------------------------------------------------
 kCreator_POM = "Zaresir Tinktaker"
-kVersion_POM = "1.5.0"
+kVersion_POM = "1.5.1"
 kResetOptions_POM = false
 
 kAPIBridge_POM = nil
