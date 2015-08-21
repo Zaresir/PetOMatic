@@ -1,4 +1,4 @@
-## Changelog 1.5.0
+## Changelog 1.5.1
 
 Stable Release
 
