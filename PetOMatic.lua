@@ -140,7 +140,7 @@ function PetOMatic:OnDocLoaded()
 		
 	self:PrintDebug(string.format("API: %d", Apollo.GetAPIVersion()))
 	self:PrintDebug("Display Size = " .. tostring(self.ConfigData.default.DisplayHeight))
-	
+
 	self:LoadWindowPosition()
 			
 	if self.wndPetOptions == nil or not self.wndPetOptions then
@@ -629,9 +629,9 @@ end
 -- PetOMatic IsSummoned Function
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:IsSummoned()
-	local SelectedPet = (self.ConfigData.saved.SelectedPet ~= nil and self.ConfigData.saved.SelectedPet or self.ConfigData.saved.SelectedPet)
+	local SelectedPet = (self.ConfigData.saved.SelectedPet ~= nil and self.ConfigData.saved.SelectedPet or self.ConfigData.default.SelectedPet)
 	
-	if SelectedPet.strName ~= nil then
+	if SelectedPet ~= nil then
 		local arPets = GameLib.GetPlayerPets()
 		
 		if arPets then
