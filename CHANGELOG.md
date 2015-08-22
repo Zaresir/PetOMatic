@@ -1,4 +1,4 @@
-## Changelog 1.5.1
+## Changelog 1.5.2
 
 Stable Release
 
@@ -9,7 +9,8 @@ _None_
 _None_
 
 ### Fixes
-* Fixed minor bug in logic to check if a pet is summoned
+* Fixed bug in initialization of saved data for first-time users
+* Randomizer button is now disabled when there are no unlocked pets
 
 ### Known Issues
 _No Known Issues_
