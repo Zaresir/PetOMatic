@@ -16,7 +16,7 @@ local kstrContainerEventName_POM = "PetOMatic"
 -- Constants
 -----------------------------------------------------------------------------------------------
 kCreator_POM = "Zaresir Tinktaker"
-kVersion_POM = "1.5.1"
+kVersion_POM = "1.5.2"
 kResetOptions_POM = false
 
 kAPIBridge_POM = nil
@@ -43,10 +43,10 @@ config_POM.defaults.MaxListSize = 7
 
 config_POM.user.Debug = false
 config_POM.user.CustomPosition = false
-config_POM.user.bntAnchor = {}
-config_POM.user.btnOffset = {}
-config_POM.user.lstAnchor = {}
-config_POM.user.lstOffset = {}
+config_POM.user.bntAnchor = nil
+config_POM.user.btnOffset = nil
+config_POM.user.lstAnchor = nil
+config_POM.user.lstOffset = nil
 config_POM.user.SelectedPet = nil
 config_POM.user.AutoSummon = false
 config_POM.user.SuspendInRaid = false
@@ -507,11 +507,13 @@ function PetOMatic:ToggleEnabled(Enabled)
 		self.wndPetFlyout:FindChild("PetSummonBtnIcon"):Show(true)
 		self.wndPetFlyout:FindChild("PetSummonBtn"):SetText("")
 		self.wndPetFlyout:FindChild("PetSummonBtn"):Enable(true)
+		self.wndPetFlyout:FindChild("PetFlyoutRandomBtn"):Enable(true)
 	else
 		self.wndPetFlyout:FindChild("PetFlyoutBtn"):Enable(false)
 		self.wndPetFlyout:FindChild("PetSummonBtnIcon"):Show(false)
 		self.wndPetFlyout:FindChild("PetSummonBtn"):SetText("No Pets")
 		self.wndPetFlyout:FindChild("PetSummonBtn"):Enable(false)
+		self.wndPetFlyout:FindChild("PetFlyoutRandomBtn"):Enable(false)
 	end
 end
 ---------------------------------------------------------------------------------------------------
