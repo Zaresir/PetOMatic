@@ -1224,8 +1224,10 @@ function PetOMatic:ClearSavedData()
 	self:PrintMsg("Resetting addon...", true)
 	
 	self.ConfigData.saved.CustomPosition = false
-	self.ConfigData.saved.btnOffset = {}
-	self.ConfigData.saved.lstOffset = {}
+	self.ConfigData.saved.btnAnchor = nil
+	self.ConfigData.saved.btnOffset = nil
+	self.ConfigData.saved.lstAnchor = nil
+	self.ConfigData.saved.lstOffset = nil
 	self.ConfigData.saved.SelectedPet = nil
 	self.ConfigData.saved.AutoSummon = false
 	self.ConfigData.saved.SuspendInRaid = false
