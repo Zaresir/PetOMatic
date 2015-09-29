@@ -16,7 +16,7 @@ local kstrContainerEventName_POM = "PetOMatic"
 -- Constants
 -----------------------------------------------------------------------------------------------
 kCreator_POM = "Zaresir Tinktaker"
-kVersion_POM = "1.5.2"
+kVersion_POM = "2.0.0"
 kResetOptions_POM = false
 
 kAPIBridge_POM = nil
@@ -55,17 +55,18 @@ config_POM.user.MaxListSize = nil
 config_POM.user.Version = nil
 
 SlashCommands_POM = {
-	debug = {disp = nil, desc = "Toggle DEBUG mode", hndlr = "E_PetOMaticDebug", func = "ToggleDebug"},
-	config = {disp = nil, desc = "Open PetOMatic Options window", hndlr = "E_PetOMaticOptions", func = "ShowPetOptions"},
-	auto = {disp = nil, desc = "Toggle autosummon after death", hndlr = "E_PetOMaticAutoSummon", func = "OnPetOptionsAutoSummonBtn"},
-	hide = {disp = nil, desc = "Hide/show button", hndlr = "E_PetOMaticHide", func = "OnPetOptionsHideAddonBtn"},
-	move = {disp = nil, desc = "Enable/disable button movement", hndlr = "E_PetOMaticMove", func = "OnPetOptionsMoveAddonBtn"},
-	restore = {disp = nil, desc = "Restore default button position", hndlr = "E_PetOMaticRestor", func = "OnPetOptionsRestoreDefaultPositionBtn"},
-	raid = {disp = nil, desc = "Enable/disable autosummoning in Raids", hndlr = "E_PetOMAticRaid", func = "OnPetOptionsSuspendInRaidBtn"},
-	max = {disp = string.format("max [%d-%d]", kListSizeMin_POM, kListSizeMax_POM), desc = "Set the pet list size to specified value.", hndlr = "E_PetOMaticMax", func = "OnPetOptionsMaxListSizeChanged"},
-	reset = {disp = nil, desc = "Clears all saved addon data and settings", hndlr = "E_PetOMaticReset", func = "ClearSavedData"},
-	center = {disp = nil, desc = "Move button to center of screen", hndlr = "E_PetOMaticCenter", func = "OnPetOptionsCenterBtn"},
-	random = {disp = nil, desc = "Select and summon random pet", hndlr = "E_PetOMaticRandom", func = "OnPetRandomBtn"}
+	debug = {disp = nil, desc = "Toggle DEBUG mode", hndlr = "E_PetOMaticDebug", func = "ToggleDebug", show = false},
+	config = {disp = nil, desc = "Open PetOMatic Options window", hndlr = "E_PetOMaticOptions", func = "ShowPetOptions", show = true},
+	auto = {disp = nil, desc = "Toggle autosummon after death", hndlr = "E_PetOMaticAutoSummon", func = "OnPetOptionsAutoSummonBtn", show = true},
+	hide = {disp = nil, desc = "Hide/show button", hndlr = "E_PetOMaticHide", func = "OnPetOptionsHideAddonBtn", show = true},
+	move = {disp = nil, desc = "Enable/disable button movement", hndlr = "E_PetOMaticMove", func = "OnPetOptionsMoveAddonBtn", show = true},
+	restore = {disp = nil, desc = "Restore default button position", hndlr = "E_PetOMaticRestor", func = "OnPetOptionsRestoreDefaultPositionBtn", show = true},
+	raid = {disp = nil, desc = "Enable/disable autosummoning in Raids", hndlr = "E_PetOMAticRaid", func = "OnPetOptionsSuspendInRaidBtn", show = true},
+	max = {disp = string.format("max [%d-%d]", kListSizeMin_POM, kListSizeMax_POM), desc = "Set the pet list size to specified value.", hndlr = "E_PetOMaticMax", func = "OnPetOptionsMaxListSizeChanged", show = true},
+	reset = {disp = nil, desc = "Clears all saved addon data and settings", hndlr = "E_PetOMaticReset", func = "ClearSavedData", show = true},
+	center = {disp = nil, desc = "Move button to center of screen", hndlr = "E_PetOMaticCenter", func = "OnPetOptionsCenterBtn", show = true},
+	random = {disp = nil, desc = "Select and summon random pet", hndlr = "E_PetOMaticRandom", func = "OnPetRandomBtn", show = true},
+	chompy = {disp = nil, desc = "Select and summon random Chompacabra pet", hndlr = "E_PetOMaticChompy", func = "RandomChompy", show = false}
 }
 
 -----------------------------------------------------------------------------------------------
@@ -88,6 +89,7 @@ function PetOMatic:new(o)
 	
 	self.NumberOfPets = 0
 	self.KnownPets = {}
+	self.PetsChompy = {}
 	self.AutoSummonAttempts = 0
 	self.LstAboveBtn = true
 		
@@ -247,6 +249,7 @@ function PetOMatic:UpdatePetList()
 	
 	local firstKnownPet = nil
 	local kPetIdx = 1
+	local kChompyIdx = 1
 	
 	if #self.wndPetFlyoutList:GetChildren() > 0 then
 		self.wndPetFlyoutList:DestroyChildren()
@@ -263,6 +266,11 @@ function PetOMatic:UpdatePetList()
 			
 			self.KnownPets[kPetIdx] = tPetInfo
 			kPetIdx = kPetIdx + 1
+			
+			if string.match(tPetInfo.strName, 'Chompacabra') ~= nil then
+				self.PetsChompy[kChompyIdx] = tPetInfo
+				kChompyIdx = kChompyIdx + 1
+			end
 			
 			if idx == 1 then
 				firstKnownPet = tPetInfo
@@ -561,16 +569,42 @@ function PetOMatic:OnPetRandomBtn( wndHandler, wndControl )
 		self:PlayOptionsSound(wndControl, "Push")
 	end
 	
+	self:PrintDebug(string.format("Number of available Pets: %d", #self.KnownPets))
+	
+	if #self.KnownPets > 0 then
+		self:SummonRandomPet(self.KnownPets)
+	else
+		self:PrintMsg("You have no unlocked Chompacabra pets")
+	end
+end
+
+---------------------------------------------------------------------------------------------------
+-- PetOMatic RandomChompy Function
+---------------------------------------------------------------------------------------------------
+function PetOMatic:RandomChompy()
+	self:PrintDebug(string.format("Number of available Chompy Pets: %d", #self.PetsChompy))
+	
+	if #self.PetsChompy > 0 then
+		self:SummonRandomPet(self.PetsChompy)
+	else
+		self:PrintMsg("You have no unlocked Chompacabra pets")
+	end
+end
+
+---------------------------------------------------------------------------------------------------
+-- PetOMatic OnPetChompyRandom Function
+---------------------------------------------------------------------------------------------------
+function PetOMatic:SummonRandomPet(PetList)
 	if GameLib.GetPlayerUnit():IsCasting() then
 		return
 	end
 	
-	local rPetIdx = math.random(#self.KnownPets)
+	local rPetIdx = math.random(#PetList)
 	
 	self:PrintDebug(string.format("Random Pet Index: %d", rPetIdx))
-	self:PrintDebug(string.format("Random Pet: %s", self.KnownPets[rPetIdx].strName))
+	self:PrintDebug(string.format("Random Pet: %s", PetList[rPetIdx].strName))
 	
-	self.nSelectedPet = self.KnownPets[rPetIdx]
+	self.nSelectedPet = PetList[rPetIdx]
 	self.ConfigData.saved.SelectedPet = self.nSelectedPet
 	self.nSelectedPetCastTime = self.nSelectedPet.splObject:GetCastTime()
 	self:RedrawSelectedPet(self.nSelectedPet)
@@ -589,7 +623,7 @@ function PetOMatic:OnPetRandomBtn( wndHandler, wndControl )
 						self:CastSummon()
 					end
 				else
-					self:OnPetRandomBtn()
+					self:SummonRandomPet(PetList)
 				end
 			end
 		end
@@ -713,7 +747,7 @@ function PetOMatic:LoadWindowPosition()
 		
 		btnAnchor = (self.ConfigData.saved.btnAnchor ~= nil and self.ConfigData.saved.btnAnchor or self.ConfigData.default.btnAnchor)
 		btnOffset = (self.ConfigData.saved.btnOffset ~= nil and self.ConfigData.saved.btnOffset or self.ConfigData.default.btnOffset)
-		lstAnchor = (self.ConfigData.saved.lstAnchor ~= nil and self.ConfigData.saved.lstAnchor or self.ConfigData.default.lstAnchor)
+		lstAnchor = (self.ConfigData.saved.lstAnchor ~= nil and self.ConfigData.saved.btnAnchor or self.ConfigData.default.lstAnchor)
 		lstOffset = (self.ConfigData.saved.lstOffset ~= nil and self.ConfigData.saved.lstOffset or self.ConfigData.default.lstOffset)
 	else
 		self:PrintDebug("- Default Position")
@@ -723,6 +757,11 @@ function PetOMatic:LoadWindowPosition()
 		lstAnchor = self.ConfigData.default.lstAnchor
 		lstOffset = self.ConfigData.default.lstOffset
 	end
+	
+	self:PrintDebug(string.format("Button Anchors LWP: %d, %d, %d, %d", btnAnchor[1], btnAnchor[2], btnAnchor[3], btnAnchor[4]))
+	self:PrintDebug(string.format("Button Offsets LWP: %d, %d, %d, %d", btnOffset[1], btnOffset[2], btnOffset[3], btnOffset[4]))
+	self:PrintDebug(string.format("List Anchors LWP: %d, %d, %d, %d", lstAnchor[1], lstAnchor[2], lstAnchor[3], lstAnchor[4]))
+	self:PrintDebug(string.format("List Offsets LWP: %d, %d, %d, %d", lstOffset[1], lstOffset[2], lstOffset[3], lstOffset[4]))
 	
 	self:MoveButton(btnAnchor, btnOffset, lstAnchor, lstOffset)
 end
@@ -1043,10 +1082,10 @@ function PetOMatic:OnPetOptionsRestoreDefaultPositionBtn(wndHandler, wndControl)
 	end
 	
 	self.ConfigData.saved.CustomPosition = false
-	self.ConfigData.saved.btnAnchor = {}
-	self.ConfigData.saved.btnOffset = {}
-	self.ConfigData.saved.lstAnchor = {}
-	self.ConfigData.saved.lstOffset = {}
+	self.ConfigData.saved.btnAnchor = nil
+	self.ConfigData.saved.btnOffset = nil
+	self.ConfigData.saved.lstAnchor = nil
+	self.ConfigData.saved.lstOffset = nil
 	
 	self:MoveButton(self.ConfigData.default.btnAnchor, self.ConfigData.default.btnOffset, self.ConfigData.default.lstAnchor, self.ConfigData.default.lstOffset)
 end
@@ -1133,8 +1172,6 @@ end
 -- PetOMatic InitSlider Function
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:InitSlider(slider, min, max, tick, value, roundDigits, callback)
-	--slider = self.wndPetOptions:FindChild("MaxPetListSize")
-	
 	slider:SetData({
 		callback = callback,
 		digits = roundDigits
@@ -1180,12 +1217,12 @@ end
 function PetOMatic:UpdateSlider(wndHandler, value)
 	local parent = wndHandler:GetParent()
 	if wndHandler:GetName() == "Input" then
-		value = tonumber(value)
+		value = self:round(tonumber(value))
 		if not value then
 			return nil
 		end
 	else
-		value = round(value, wndHandler:GetParent():GetData().digits)
+		value = self:round(value, wndHandler:GetParent():GetData().digits)
 		parent:FindChild("Input"):SetText(tostring(value))
 	end
 	
@@ -1224,9 +1261,7 @@ function PetOMatic:ClearSavedData()
 	self:PrintMsg("Resetting addon...", true)
 	
 	self.ConfigData.saved.CustomPosition = false
-	self.ConfigData.saved.btnAnchor = nil
 	self.ConfigData.saved.btnOffset = nil
-	self.ConfigData.saved.lstAnchor = nil
 	self.ConfigData.saved.lstOffset = nil
 	self.ConfigData.saved.SelectedPet = nil
 	self.ConfigData.saved.AutoSummon = false
@@ -1320,7 +1355,7 @@ function PetOMatic:PrintCommands()
 	local cmdList = {}
 	
 	for cmd in pairs(SlashCommands_POM) do
-		self:PrintDebug("cmd")
+		self:PrintDebug(cmd)
 		table.insert(cmdList, cmd)
 	end
 	
@@ -1329,7 +1364,7 @@ function PetOMatic:PrintCommands()
 	for idx, cmd in pairs(cmdList) do
 		local PrintCmd = true
 		
-		if cmd == "debug" then
+		if not SlashCommands_POM[cmd].show then
 			if GameLib.GetPlayerUnit():GetName() ~= kCreator_POM then
 				PrintCmd = false
 			end
@@ -1339,6 +1374,14 @@ function PetOMatic:PrintCommands()
 			self:PrintMsg(string.format("- %s : %s", (SlashCommands_POM[cmd].disp ~= nil and SlashCommands_POM[cmd].disp or cmd), SlashCommands_POM[cmd].desc), false)
 		end
 	end
+end
+
+---------------------------------------------------------------------------------------------------
+-- PetOMatic round Function
+---------------------------------------------------------------------------------------------------
+function PetOMatic:round(num, idp)
+	local mult = 10^(idp or 0)
+	return math.floor(num * mult + 0.5) / mult
 end
 
 -----------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Addon Author="Zaresir Tinktaker" APIVersion="10" Name="PetOMatic" Description="Vanity pet summoner" Version="1.5.2">
+<Addon Author="Zaresir Tinktaker" APIVersion="11" Name="PetOMatic" Description="Vanity pet summoner" Version="2.0.0">
     <Script Name="PetOMatic.lua"/>
     <Form Name="PetOMatic.xml"/>
 </Addon>
