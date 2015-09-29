@@ -6,11 +6,10 @@ Stable Release
 _None_
 
 ### Updates
-_None_
+* API 11
 
 ### Fixes
-* Fixed bug in initialization of saved data for first-time users
-* Randomizer button is now disabled when there are no unlocked pets
+* Issue #1445: Lua error after logging in
 
 ### Known Issues
 _No Known Issues_
