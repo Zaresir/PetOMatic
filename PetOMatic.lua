@@ -623,7 +623,11 @@ function PetOMatic:SummonRandomPet(PetList)
 						self:CastSummon()
 					end
 				else
-					self:SummonRandomPet(PetList)
+					if #PetList > 1 then	
+						self:SummonRandomPet(PetList)
+					else
+						self:PrintMsg('You only have one summonable pet')
+					end
 				end
 			end
 		end
