@@ -3,6 +3,7 @@ ignore:
 	- README.md
 	- CHANGELOG.md
 	- LICENSE
+	- package.json
 
 license-output: LICENSE
 
