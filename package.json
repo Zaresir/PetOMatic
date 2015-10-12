@@ -1,0 +1,9 @@
+
+{
+  "name"                    : "PetOMatic",
+  "description"             : "PetOMatic is a Wildstar Addon that makes the summoning of vanity pets easier. Designed to work like the mount button, it provides a button on the UI allowing you to select a pet from your unlocked vanity pets. Once selected, you can summon and dismiss the pet with the click of a button.",
+  "url"                     : "http://http://wildstar.curseforge.com/projects/petomatic",
+  "author"                  : "Zaresir TinkTaker",
+  
+  "version"                 : "2.0.1-release"
+}
