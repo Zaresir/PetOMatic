@@ -16,8 +16,10 @@ local kstrContainerEventName_POM = "PetOMatic"
 -- Constants
 -----------------------------------------------------------------------------------------------
 kCreator_POM = "Zaresir Tinktaker"
-kVersion_POM = "2.0.0"
+kVersion_POM = "2.1.0-release"
 kResetOptions_POM = false
+
+kOptionBtn_POM = "IconSprites:Icon_Windows32_UI_CRB_InterfaceMenu_NonCombatAbility"
 
 kAPIBridge_POM = nil
 
@@ -31,7 +33,7 @@ config_POM.user = {}
 
 config_POM.defaults.DisplayHeight = Apollo.GetDisplaySize().nHeight
 config_POM.defaults.btnAnchor = {1, 1, 1, 1}
-config_POM.defaults.btnOffset = {-96, -113, -4, -32}
+config_POM.defaults.btnOffset = {-88, -113, -10, -32}
 config_POM.defaults.lstAnchor = {1, 1, 1, 1}
 config_POM.defaults.lstOffset = {-122, -407, 12, -87}
 config_POM.defaults.wndListOffsets = {26, 294, 16, 55}
@@ -39,6 +41,7 @@ config_POM.defaults.SelectedPet = nil
 config_POM.defaults.AutoSummon = false
 config_POM.defaults.SuspendInRaid = false
 config_POM.defaults.HideAddon = false
+config_POM.defaults.HideInCombat = false
 config_POM.defaults.MaxListSize = 7
 
 config_POM.user.Debug = false
@@ -51,6 +54,7 @@ config_POM.user.SelectedPet = nil
 config_POM.user.AutoSummon = false
 config_POM.user.SuspendInRaid = false
 config_POM.user.HideAddon = false
+config_POM.user.HideInCombat = false
 config_POM.user.MaxListSize = nil
 config_POM.user.Version = nil
 
@@ -59,6 +63,7 @@ SlashCommands_POM = {
 	config = {disp = nil, desc = "Open PetOMatic Options window", hndlr = "E_PetOMaticOptions", func = "ShowPetOptions", show = true},
 	auto = {disp = nil, desc = "Toggle autosummon after death", hndlr = "E_PetOMaticAutoSummon", func = "OnPetOptionsAutoSummonBtn", show = true},
 	hide = {disp = nil, desc = "Hide/show button", hndlr = "E_PetOMaticHide", func = "OnPetOptionsHideAddonBtn", show = true},
+	chide = {disp = nil, desc = "Hide button in combat", hndlr = "E_PetOMaticHideInCombat", func = "OnPetOptionsHideInCombatBtn", show = true},
 	move = {disp = nil, desc = "Enable/disable button movement", hndlr = "E_PetOMaticMove", func = "OnPetOptionsMoveAddonBtn", show = true},
 	restore = {disp = nil, desc = "Restore default button position", hndlr = "E_PetOMaticRestor", func = "OnPetOptionsRestoreDefaultPositionBtn", show = true},
 	raid = {disp = nil, desc = "Enable/disable autosummoning in Raids", hndlr = "E_PetOMAticRaid", func = "OnPetOptionsSuspendInRaidBtn", show = true},
@@ -112,7 +117,7 @@ end
 -- PetOMatic OnLoad Function
 -----------------------------------------------------------------------------------------------
 function PetOMatic:OnLoad()
-	Apollo.LoadSprites("Sprites/PetOMaticBtn.xml")
+	Apollo.LoadSprites("Sprites/PetOMatic.xml")
 	
     -- load our form file
 	self.xmlDoc = XmlDoc.CreateFromFile("PetOMatic.xml")
@@ -167,6 +172,7 @@ function PetOMatic:RegisterObjects()
 	Apollo.RegisterEventHandler("CombatLogResurrect", "OnResurrect", self)
 	Apollo.RegisterEventHandler("AbilityBookChange", "UpdatePetList", self)
 	Apollo.RegisterEventHandler("Mount", "OnDismount", self)
+	Apollo.RegisterEventHandler("UnitEnteredCombat", "OnCombatToggleHide", self)
 	
 	-- Register Slash Command Events
 	self:RegisterSlashCommandEvents()
@@ -195,7 +201,7 @@ end
 -- PetOMatic OnInterfaceMenuListHasLoaded Function
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:OnInterfaceMenuListLoaded()
-	Event_FireGenericEvent("InterfaceMenuList_NewAddOn", kstrContainerEventName_POM, {"PetOptionsMenuClicked", "", "IconSprites:Icon_Windows32_UI_CRB_InterfaceMenu_NonCombatAbility"})
+	Event_FireGenericEvent("InterfaceMenuList_NewAddOn", kstrContainerEventName_POM, {"PetOptionsMenuClicked", "", kOptionBtn_POM})
 	Apollo.RegisterEventHandler("PetOptionsMenuClicked", "ShowPetOptions", self)
 end
 
@@ -623,7 +629,11 @@ function PetOMatic:SummonRandomPet(PetList)
 						self:CastSummon()
 					end
 				else
-					self:SummonRandomPet(PetList)
+					if #PetList > 1 then	
+						self:SummonRandomPet(PetList)
+					else
+						self:PrintMsg('You only have one summonable pet')
+					end
 				end
 			end
 		end
@@ -791,6 +801,7 @@ function PetOMatic:LoadOptions()
 	self:PrintDebug("- AutoSummon = " .. tostring(self.ConfigData.saved.AutoSummon ~= nil and self.ConfigData.saved.AutoSummon or self.ConfigData.default.AutoSummon))
 	self:PrintDebug("- SuspendInRaid = " .. tostring(self.ConfigData.saved.SuspendInRaid ~= nil and self.ConfigData.saved.SuspendInRaid or self.ConfigData.default.SuspendInRaid))
 	self:PrintDebug("- HideAddon = " .. tostring(self.ConfigData.saved.HideAddon ~= nil and self.ConfigData.saved.HideAddon or self.ConfigData.default.HideAddon))
+	self:PrintDebug("- HideInCombat = " .. tostring(self.ConfigData.saved.HideInCombat ~= nil and self.ConfigData.saved.HideInCombat or self.ConfigData.default.HideInCombat))
 	self:PrintDebug("- MaxListSize = " .. tostring(self.ConfigData.saved.MaxListSize ~= nil and self.ConfigData.saved.MaxListSize or self.ConfigData.default.MaxListSize))
 	
 	local options = self.wndPetOptions:FindChild("MaxPetListSize")
@@ -799,12 +810,14 @@ function PetOMatic:LoadOptions()
 	local tHide = (self.ConfigData.saved.HideAddon ~= nil and self.ConfigData.saved.HideAddon or self.ConfigData.default.HideAddon)
 	local vMaxListSize = (self.ConfigData.saved.MaxListSize ~= nil and self.ConfigData.saved.MaxListSize or self.ConfigData.default.MaxListSize)
 	local ListSizeSlider = options:FindChild("MaxPetListSize")
+	local tHideInCombat = (self.ConfigData.saved.HideInCombat ~= nil and self.ConfigData.saved.HideInCombat or self.ConfigData.default.HideInCombat )
 	
 	self.wndPetOptions:FindChild("PetOptionsMoveAddonBtn"):SetCheck(False)
 	self:ToggleMoveable(false, true)
 	self:ToggleAutoSummon(tAutoSummon, true)
 	self:ToggleSuspendInRaid(tSuspendInRaid, true)
 	self:ToggleHide(tHide, true)
+	self:ToggleHideInCombat(tHideInCombat, true)
 	self:InitSlider(ListSizeSlider, kListSizeMin_POM, kListSizeMax_POM, 1, vMaxListSize , 0, function (value) vMaxListSize = value end)
 end
 
@@ -867,7 +880,7 @@ function PetOMatic:ToggleAutoSummon(bAutoSummon, SuppressOutput)
 end
 
 ---------------------------------------------------------------------------------------------------
--- PetOMatic OnPetOptionsNoSuspendInRaidBtn Function
+-- PetOMatic OnPetOptionsSuspendInRaidBtn Function
 ---------------------------------------------------------------------------------------------------
 function PetOMatic:OnPetOptionsSuspendInRaidBtn(wndHandler, wndControl)
 	local suppressOutput = false
@@ -1135,39 +1148,108 @@ function PetOMatic:OnPetOptionsHideAddonBtn(wndHandler, wndControl)
 	
 	self.ConfigData.saved.HideAddon = not self.ConfigData.saved.HideAddon
 	self:ToggleHide(self.ConfigData.saved.HideAddon, suppressOutput)
+	
+	self.ConfigData.saved.HideInCombat = false
+	self.wndPetOptions:FindChild("PetOptionsHideInCombatBtn"):SetCheck(false)
+	self:ToggleHideInCombat(false, true)
+end
+
+---------------------------------------------------------------------------------------------------
+-- PetOMatic OnPetOptionsHideInCombatBtn Function
+---------------------------------------------------------------------------------------------------
+
+function PetOMatic:OnPetOptionsHideInCombatBtn( wndHandler, wndControl, eMouseButton )
+	local suppressOutput = false
+
+	if wndControl then
+		self:PlayOptionsSound(wndControl, "Checkbox")
+		
+		suppressOutput = true
+	end
+	
+	self.ConfigData.saved.HideInCombat = (not self.ConfigData.saved.HideInCombat)
+	self:ToggleHideInCombat(self.ConfigData.saved.HideInCombat, suppressOutput)
+	
+	self.ConfigData.saved.HideAddon = false
+	self.wndPetOptions:FindChild("PetOptionsHideAddonBtn"):SetCheck(false)
+	self:ToggleHide(false, true)
+end
+
+---------------------------------------------------------------------------------------------------
+-- PetOMatic ToggleHideInCombat Function
+---------------------------------------------------------------------------------------------------
+function PetOMatic:ToggleHideInCombat(bHideInCombat, SuppressOutput)
+	if self.ConfigData.saved.HideInCombat then		
+		self:PrintDebug("Enabling Hide Button in Combat")
+		
+		if not SuppressOutput then
+			self:PrintMsg("Hide button in combat enabled", true)
+		end
+	else
+		self:PrintDebug("Disabling Hide button in combat")
+		
+		if not SuppressOutput then
+			self:PrintMsg("Hide button in combat disabled", true)
+		end
+	end
+	
+	self.wndPetOptions:FindChild("PetOptionsHideInCombatBtn"):SetCheck(bHideInCombat)
+end
+
+---------------------------------------------------------------------------------------------------
+-- PetOMatic OnCombatToggleHide Function
+---------------------------------------------------------------------------------------------------
+function PetOMatic:OnCombatToggleHide()
+	if self.ConfigData.saved.HideInCombat then
+		if GameLib.GetPlayerUnit():IsInCombat() then
+			self:PrintDebug("Player in combat; hiding button")
+			
+			self:ToggleHide(true, true, true)
+		else
+			self:PrintDebug("Player left combat; showing button")
+			
+			self:ToggleHide(false,true, true)
+		end
+	end
 end
 
 ---------------------------------------------------------------------------------------------------
 -- PetOMatic ToggleHide Function
 ---------------------------------------------------------------------------------------------------
-function PetOMatic:ToggleHide(bHideAddon, SuppressOutput)
+function PetOMatic:ToggleHide(bHideAddon, SuppressOutput, Combat)
+	Combat = (Combat ~= nil and Combat or false)
+	
 	if bHideAddon then
 		self:PrintDebug("Hiding button")
 	else
 		self:PrintDebug("Unhiding button")
 	end
 	
-	self.wndPetOptions:FindChild("PetOptionsHideAddonBtn"):SetCheck(bHideAddon)
+	if not Combat then
+		self.wndPetOptions:FindChild("PetOptionsHideAddonBtn"):SetCheck(bHideAddon)
 	
-	self.wndPetFlyout:Show(not bHideAddon )
-	
-	if bHideAddon  then
-		self.wndPetOptions:FindChild("PetOptionsMoveAddonBtn"):Enable(false)
-		self.wndPetOptions:FindChild("PetOptionsRestoreDefaultPositionBtn"):Enable(false)
-		
-		if not SuppressOutput then
-			self:PrintMsg("Button hidden", true)
-		end
-	else
-		self.wndPetOptions:FindChild("PetOptionsMoveAddonBtn"):Enable(true)
-		self.wndPetOptions:FindChild("PetOptionsRestoreDefaultPositionBtn"):Enable(true)
-		
-		if not SuppressOutput then
-			self:PrintMsg("Button visible", true)
+		if bHideAddon  then
+			self.wndPetOptions:FindChild("PetOptionsMoveAddonBtn"):Enable(false)
+			self.wndPetOptions:FindChild("PetOptionsRestoreDefaultPositionBtn"):Enable(false)
+			self.wndPetOptions:FindChild("PetOptionsCenterBtn"):Enable(false)
+			
+			if not SuppressOutput then
+				self:PrintMsg("Button hidden", true)
+			end
+		else
+			self.wndPetOptions:FindChild("PetOptionsMoveAddonBtn"):Enable(true)
+			self.wndPetOptions:FindChild("PetOptionsRestoreDefaultPositionBtn"):Enable(true)
+			self.wndPetOptions:FindChild("PetOptionsCenterBtn"):Enable(true)
+			
+			if not SuppressOutput then
+				self:PrintMsg("Button visible", true)
+			end
 		end
 	end
+	
+	self.wndPetFlyout:Show(not bHideAddon )
 end
-
+	
 ---------------------------------------------------------------------------------------------------
 -- PetOMatic InitSlider Function
 ---------------------------------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Addon Author="Zaresir Tinktaker" APIVersion="11" Name="PetOMatic" Description="Vanity pet summoner" Version="2.0.0">
+<Addon Author="Zaresir Tinktaker" APIVersion="11" Name="PetOMatic" Description="PetOMatic is a Wildstar Addon that makes the summoning of vanity pets easier." Version="2.1.0-release">
     <Script Name="PetOMatic.lua"/>
     <Form Name="PetOMatic.xml"/>
+    <Sprite Name="Sprites/PetOMaticBtn.xml"/>
 </Addon>
