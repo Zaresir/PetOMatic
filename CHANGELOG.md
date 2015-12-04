@@ -1,15 +1,15 @@
-## Changelog 2.0.0-release
+## Changelog 2.1.0-release
 
 Stable Release
 
 ### Adds
-_None_
+* Issue #1576: Added option to hide addon button while in combat
 
 ### Updates
-* API 11
+* Issue #1587: Updated artwork to fit new Carbine UI
 
 ### Fixes
-* Issue #1445: Lua error after logging in
+* Issue #1562: Updated version reported by addon
 
 ### Known Issues
-_No Known Issues_
+* Issue #1576: Report of addon error when leaving PvP battlegrounds - "PetOMatic is a Wildstar Addon that makes the summoning of vanity pets easier" (Unable to reproduce)
