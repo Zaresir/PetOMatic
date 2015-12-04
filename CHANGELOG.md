@@ -7,7 +7,7 @@ Stable Release
 
 ### Updates
 * Issue #1587: Updated artwork to fit new Carbine UI
-* Updated text for autosummmoning "Suspend In Raid" text to read "Suspend Autosummoning In Raid"
+* Updated text for autosummmoning "Suspend In Raid" option to read "Suspend Autosummoning In Raid"
 * Reformated addon options window to include new "Hide In Combat" option
 
 ### Fixes
