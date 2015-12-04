@@ -12,4 +12,5 @@ Stable Release
 * Issue #1562: Updated version reported by addon
 
 ### Known Issues
-* Issue #1576: Report of addon error when leaving PvP battlegrounds - "PetOMatic is a Wildstar Addon that makes the summoning of vanity pets easier" (Unable to reproduce)
+* Issue #1576: Report of addon error when leaving PvP battlegrounds - "PetOMatic.lua:542: attempt to index a nil value
+stack trace" (Unable to reproduce)
