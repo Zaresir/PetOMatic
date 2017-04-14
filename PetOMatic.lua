@@ -16,7 +16,7 @@ local kstrContainerEventName_POM = "PetOMatic"
 -- Constants
 -----------------------------------------------------------------------------------------------
 kCreator_POM = "Zaresir Tinktaker"
-kVersion_POM = "2.2.1-release"
+kVersion_POM = "2.2.2-release"
 kResetOptions_POM = false
 
 kOptionBtn_POM = "IconSprites:Icon_Windows32_UI_CRB_InterfaceMenu_NonCombatAbility"
