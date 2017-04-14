@@ -1,4 +1,4 @@
-## Changelog 2.2.1-release
+## Changelog 2.2.2-release
 
 Stable Release
 
@@ -6,7 +6,7 @@ Stable Release
 * _None_
 
 ### Updates
-* Updated for API 14
+* Updated for API 15
 
 ### Fixes
 * _None_
